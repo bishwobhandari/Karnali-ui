@@ -1,0 +1,23 @@
+<form class="p-3 shadow" (ngSubmit)="onSubmit(flightDetails)">
+    <div class="form-group">
+      <label for="from">From:</label>
+      <input type="text" class="form-control" id="from" placeholder="Enter From location" name="from" [(ngModel)]="flightDetails.flightFrom">
+    </div>
+    <div class="form-group">
+      <label for="to">To:</label>
+      <input type="text" class="form-control" id="to" placeholder="Enter To location" name="to" [(ngModel)]="flightDetails.flightTo">
+    </div>
+    <div class="form-group">
+      <label for="date">Date:</label>
+      <input type="date" class="form-control" id="date" [(ngModel)]="flightDetails.flightDate" name="date">
+    </div>
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" class="form-control" id="name" placeholder="Enter your Name" name ="name" [(ngModel)]="flightDetails.name">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+  
+  
+  
+  
