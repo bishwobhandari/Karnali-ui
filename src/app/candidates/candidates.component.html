@@ -1,17 +1,15 @@
 <div class="form-group row">
     <label for="dropdown1" class="col-sm-2 col-form-label">Province</label>
     <div class="col-sm-4">
-      <select class="form-control" id="dropdown1">
-        <option *ngFor="let province of provinces">{{ province.name }}</option>
+      <select class="form-control" id="dropdown1" [(ngModel)]="currentProvince" (change)="onOptionSelected()">
+        <option *ngFor="let province of provinces" [value]="province.id"> {{ province.name }}</option>
       </select>
     </div>
   
-    <label for="dropdown2" class="col-sm-2 col-form-label">Dropdown 2</label>
+    <label for="dropdown2" class="col-sm-2 col-form-label">Districts</label>
     <div class="col-sm-4">
-      <select class="form-control" id="dropdown2">
-        <option>Option 1</option>
-        <option>Option 2</option>
-        <option>Option 3</option>
+      <select class="form-control" id="dropdown1" >
+        <option *ngFor="let district of districts" value="">{{ district.name }}</option>
       </select>
     </div>
   

@@ -23,4 +23,15 @@ export class ApiServiceService {
     return this.http.get<any>(url, httpOptions);
   }
 
+  getDistrictsByProvince(currentProvince:number): Observable<any> {
+    const url = this.apiUrl+'api/districts/getDistrictsByProvince/'+currentProvince;
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
+
+    return this.http.get<any>(url, httpOptions);
+  }
+
 }
