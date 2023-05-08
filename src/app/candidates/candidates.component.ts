@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ApiServiceService } from '../api-service.service';
-import { forkJoin, map } from 'rxjs';
+import { forkJoin, map, tap } from 'rxjs';
 
 @Component({
   selector: 'app-candidates',
@@ -12,9 +12,9 @@ export class CandidatesComponent {
   provinces: any[] = [];
   districts:any[]=[];
   constituencies:any[] = [];
-  currentProvince=1;
-  currentDistrict=1;
-  currentConstituency=1;
+  currentProvinceId=1;
+  currentDistrictId=1;
+  currentConstituencyId=1;
   dataLoaded=false;
 
   constructor(private apiService: ApiServiceService) { }
@@ -22,95 +22,104 @@ export class CandidatesComponent {
  
 
   ngOnInit(): void {
-   
-      forkJoin({
-        provinces: this.apiService.getProvinces(),
-        districts: this.apiService.getDistricts(),
-        constituencies: this.apiService.getConstituencies()
+   console.log("ng on init")
+      forkJoin([
+        this.apiService.getProvinces().pipe(tap(res=> {
+          console.log("provinces called", res);
+          this.currentProvinceId=res[0].id;
+          
+       
+        })),  
+        this.apiService.getDistrictsByProvince(this.currentProvinceId).pipe(tap(res=> {
+          console.log("districts called", res);
+          this.currentDistrictId=res[0].id;
+       
+        })),  
+        this.apiService.getConstituenciesByDistrict(this.currentDistrictId).pipe(tap(res=> {
+          console.log("constituencies called", res);
+          this.currentConstituencyId=res[0].id;
+       
+        }))
+      ]).subscribe(allresult=>{
+        console.log(allresult)
+        this.provinces=allresult[0];
+        this.districts=allresult[1];
+        this.constituencies=allresult[2];
       })
-      .pipe(
-        map(response => {
-          const provinces = <Array<any>>response.provinces;
-          const districts = <Array<any>>response.districts;
-          const constituencies = <Array<any>>response.constituencies;
-          const result: any[] = [];
-          provinces.map((province: any) => {
-            result.push({
-              ...province, 
-              ...districts.find((district: any) => district.province_id === province.id), 
-              ...constituencies.find((constituency: any) => constituency.district_id === constituency.userId)})
-          });
-  
-          console.log("result ", result)
-          return result;
-        })
-      )
-      .subscribe((data) => {
-        console.log(data)
-        this.provinces = data;
-      });
+     console.log("finished")
     
   }
 
-  updateCurrentDistrict(){
-    this.currentDistrict=this.districts[0];
-  }
 
-  async loadData(){
- 
+//  async getProvinces(){
+//      await this.apiService.getProvinces().subscribe(
+//       data => {
+//         console.log("get provinces called", data)
+//         this.provinces = data;
+//       },
+//       error => {
+//         console.error(error);
+//       }
+//     );
+//   }
 
+//  async  getDistricts(){
+//   await this.apiService.getDistricts().subscribe(
+//     data => {
+//       console.log("get districts called", data)
+//       this.districts = data;
+//     },
+//     error => {
+//       console.error(error);
+//     }
+//   );
+//   }
 
-  }
-
- async getProvinces(){
-     await this.apiService.getProvinces().subscribe(
-      data => {
-        console.log("get provinces called", data)
-        this.provinces = data;
-      },
-      error => {
-        console.error(error);
-      }
-    );
-  }
-
- async  getDistricts(){
-  await this.apiService.getDistricts().subscribe(
-    data => {
-      console.log("get districts called", data)
-      this.districts = data;
-    },
-    error => {
-      console.error(error);
-    }
-  );
-  }
-
-  async  getConstituencies(){
-    await this.apiService.getConstituencies().subscribe(
-      data => {
-        console.log("get constituency called", data)
-        this.constituencies=data;
+//   async  getConstituencies(){
+//     await this.apiService.getConstituencies().subscribe(
+//       data => {
+//         console.log("get constituency called", data)
+//         this.constituencies=data;
    
-      },
-      error => {
-        console.error(error);
-      }
-    );
+//       },
+//       error => {
+//         console.error(error);
+//       }
+//     );
   
+//   }
+
+
+  updateProvince(){
+    forkJoin([
+      this.apiService.getDistrictsByProvince(this.currentProvinceId).pipe(tap(res=> {
+        console.log("districts called", res);
+        this.currentDistrictId=res[0].id;
+     
+      })),  
+      this.apiService.getConstituenciesByDistrict(this.currentDistrictId).pipe(tap(res=> {
+        console.log("constituencies called", res);
+        this.currentConstituencyId=res[0].id;
+     
+      }))
+    ]).subscribe(allresult=>{
+      console.log("all resule subscribed")
+      this.districts=allresult[0];
+      this.constituencies=allresult[1];
+    })
   }
 
-  setCurrentDistrict(){
-    this.currentDistrict=this.districts[0].id;
-    console.log("current district is" ,this.currentDistrict)
+
+  updateDistrict(){
+    this.apiService.getConstituenciesByDistrict(this.currentDistrictId)
+    .subscribe(res=>{
+    console.log(res)
+
+    this.constituencies=res
+    this.currentConstituencyId=this.constituencies[0].id;
+  })
   }
 
-  setCurrentConstituency(){
-    console.log(this.constituencies)
-    if(this.constituencies.length > 0){
-      this.currentConstituency=this.constituencies[0].id;
-    }
 
-    console.log("current district is" ,this.currentConstituency)
-  }
+
 }

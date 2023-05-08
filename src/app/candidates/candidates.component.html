@@ -1,21 +1,21 @@
 <div class="form-group row my-2">
     <label for="dropdown1" class="col-sm-1 col-form-label">Province</label>
     <div class="col-sm-2">
-      <select class="form-control" id="dropdown1" [(ngModel)]="currentProvince" >
+      <select class="form-control" id="dropdown1" [(ngModel)]="currentProvinceId"  (change)="updateProvince()" >
         <option *ngFor="let province of provinces" [value]="province.id"> {{ province.name }}</option>
       </select>
     </div>
   
     <label for="dropdown2" class="col-sm-1 col-form-label">Districts</label>
     <div class="col-sm-2">
-      <select class="form-control" id="dropdown1" [(ngModel)]="currentDistrict" >
+      <select class="form-control" id="dropdown1" [(ngModel)]="currentDistrictId" (change)="updateDistrict()" >
         <option *ngFor="let district of districts" [value]="district.id">{{ district.name }}</option>
       </select>
     </div>
   
     <label for="dropdown2" class="col-sm-1 col-form-label">Constituencies</label>
     <div class="col-sm-2">
-      <select class="form-control" id="dropdown1" [(ngModel)]="currentConstituency" >
+      <select class="form-control" id="dropdown1" [(ngModel)]="currentConstituencyId" >
         <option *ngFor="let constituency of constituencies" [value]="constituency.id">{{ constituency.name }}</option>
       </select>
     </div>

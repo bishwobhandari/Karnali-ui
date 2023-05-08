@@ -57,7 +57,7 @@ export class ApiServiceService {
   }
 
   getConstituenciesByDistrict(currentDistrict:any): Observable<any> {
-
+console.log("get constituenies bpy district", currentDistrict)
     const url = this.apiUrl+'api/constituency/getConstituenciesByDistrict/'+currentDistrict;
 
     console.log(url)
