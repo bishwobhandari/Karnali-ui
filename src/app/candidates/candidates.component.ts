@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ApiServiceService } from '../api-service.service';
-import { forkJoin, map, tap } from 'rxjs';
+import { forkJoin, map, merge, mergeMap, tap } from 'rxjs';
+import { Member } from '../interfaces/interface';
 
 @Component({
   selector: 'app-candidates',
@@ -13,8 +14,9 @@ export class CandidatesComponent {
   districts:any[]=[];
   constituencies:any[] = [];
   currentProvinceId=1;
-  currentDistrictId=1;
+  currentDistrictId=11;
   currentConstituencyId=1;
+  currentMember:Member;
   dataLoaded=false;
 
   constructor(private apiService: ApiServiceService) { }
@@ -22,90 +24,46 @@ export class CandidatesComponent {
  
 
   ngOnInit(): void {
-   console.log("ng on init")
+      this.dataLoaded=false;
       forkJoin([
         this.apiService.getProvinces().pipe(tap(res=> {
-          console.log("provinces called", res);
           this.currentProvinceId=res[0].id;
           
        
         })),  
         this.apiService.getDistrictsByProvince(this.currentProvinceId).pipe(tap(res=> {
-          console.log("districts called", res);
           this.currentDistrictId=res[0].id;
        
         })),  
         this.apiService.getConstituenciesByDistrict(this.currentDistrictId).pipe(tap(res=> {
-          console.log("constituencies called", res);
           this.currentConstituencyId=res[0].id;
        
         }))
       ]).subscribe(allresult=>{
-        console.log(allresult)
         this.provinces=allresult[0];
         this.districts=allresult[1];
         this.constituencies=allresult[2];
       })
-     console.log("finished")
-    
+
+
+      this.apiService.getConstituentMembersByConstituency(this.currentConstituencyId).subscribe(res=>{
+        this.currentMember=res;
+        this.dataLoaded=true;
+      })
+
+
+
   }
 
 
-//  async getProvinces(){
-//      await this.apiService.getProvinces().subscribe(
-//       data => {
-//         console.log("get provinces called", data)
-//         this.provinces = data;
-//       },
-//       error => {
-//         console.error(error);
-//       }
-//     );
-//   }
-
-//  async  getDistricts(){
-//   await this.apiService.getDistricts().subscribe(
-//     data => {
-//       console.log("get districts called", data)
-//       this.districts = data;
-//     },
-//     error => {
-//       console.error(error);
-//     }
-//   );
-//   }
-
-//   async  getConstituencies(){
-//     await this.apiService.getConstituencies().subscribe(
-//       data => {
-//         console.log("get constituency called", data)
-//         this.constituencies=data;
-   
-//       },
-//       error => {
-//         console.error(error);
-//       }
-//     );
-  
-//   }
-
-
   updateProvince(){
-    forkJoin([
-      this.apiService.getDistrictsByProvince(this.currentProvinceId).pipe(tap(res=> {
-        console.log("districts called", res);
-        this.currentDistrictId=res[0].id;
-     
-      })),  
-      this.apiService.getConstituenciesByDistrict(this.currentDistrictId).pipe(tap(res=> {
-        console.log("constituencies called", res);
-        this.currentConstituencyId=res[0].id;
-     
-      }))
-    ]).subscribe(allresult=>{
-      console.log("all resule subscribed")
-      this.districts=allresult[0];
-      this.constituencies=allresult[1];
+    this.apiService.getDistrictsByProvince(this.currentProvinceId).pipe(map(res=> {
+      this.districts= res;
+      this.currentDistrictId=this.districts[0].id;
+      return this.districts;
+    }), mergeMap( provinces =>this.apiService.getConstituenciesByDistrict(this.currentDistrictId))).subscribe(response=>{
+      this.constituencies=response;
+      this.currentConstituencyId=this.constituencies[0].id;
     })
   }
 
@@ -113,13 +71,15 @@ export class CandidatesComponent {
   updateDistrict(){
     this.apiService.getConstituenciesByDistrict(this.currentDistrictId)
     .subscribe(res=>{
-    console.log(res)
-
     this.constituencies=res
     this.currentConstituencyId=this.constituencies[0].id;
   })
   }
 
+
+  getImageSrc() {
+    return "assets/"+this.currentMember.firstName.toLowerCase()+this.currentMember.lastName.toLowerCase()+".jpg";
+  }
 
 
 }

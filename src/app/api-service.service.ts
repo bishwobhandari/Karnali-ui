@@ -46,7 +46,9 @@ export class ApiServiceService {
   }
 
   getDistrictsByProvince(currentProvince:number): Observable<any> {
+
     const url = this.apiUrl+'api/districts/getDistrictsByProvince/'+currentProvince;
+    console.log(url)
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
@@ -57,8 +59,22 @@ export class ApiServiceService {
   }
 
   getConstituenciesByDistrict(currentDistrict:any): Observable<any> {
-console.log("get constituenies bpy district", currentDistrict)
+
     const url = this.apiUrl+'api/constituency/getConstituenciesByDistrict/'+currentDistrict;
+
+    console.log(url)
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
+
+    return this.http.get<any>(url, httpOptions);
+  }
+
+  getConstituentMembersByConstituency(currentConstituency:any): Observable<any> {
+
+    const url = this.apiUrl+'api/constituent-members/getMemberByConstituencyId/'+currentConstituency;
 
     console.log(url)
     const httpOptions = {
